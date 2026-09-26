@@ -138,7 +138,7 @@ export const api = {
     if (params?.productId) q.append('productId', params.productId);
     if (params?.locationId) q.append('locationId', params.locationId);
     return request(`/ledger?${q.toString()}`);
-  }
+  },
 
   // Anomalies
   getAnomalies: (status) => request(`/anomalies${status && status !== 'all' ? `?status=${status}` : ''}`),
