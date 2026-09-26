@@ -51,7 +51,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ ledgerEntries });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching move history' });
+    return res.status(500).json({ error: 'Error fetching move history' });
   }
 });
 

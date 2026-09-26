@@ -49,7 +49,7 @@ router.post('/signup', async (req, res) => {
       user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error registering user' });
+    return res.status(500).json({ error: 'Error registering user' });
   }
 });
 
@@ -88,7 +88,7 @@ router.post('/login', async (req, res) => {
       user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error logging in' });
+    return res.status(500).json({ error: 'Error logging in' });
   }
 });
 
@@ -132,12 +132,10 @@ router.post('/forgot-password', async (req, res) => {
 
     return res.json({
       message: 'OTP has been generated and sent to your email address.',
-      email: normalizedEmail,
-      // For effortless testing and evaluation in dev environments, include OTP in response:
-      devOtp: otp
+      email: normalizedEmail
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error processing forgot password' });
+    return res.status(500).json({ error: 'Error processing forgot password' });
   }
 });
 
@@ -169,7 +167,7 @@ router.post('/verify-otp', async (req, res) => {
       message: 'OTP verified successfully. You may now reset your password.'
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error verifying OTP' });
+    return res.status(500).json({ error: 'Error verifying OTP' });
   }
 });
 
@@ -218,7 +216,7 @@ router.post('/reset-password', async (req, res) => {
       message: 'Password reset successful. Please log in with your new password.'
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error resetting password' });
+    return res.status(500).json({ error: 'Error resetting password' });
   }
 });
 
@@ -243,19 +241,18 @@ router.get('/me', authenticate, async (req, res) => {
 
     return res.json({ user });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching user' });
+    return res.status(500).json({ error: 'Error fetching user' });
   }
 });
 
 // Update Profile
 router.put('/me', authenticate, async (req, res) => {
   try {
-    const { name, role } = req.body;
+    const { name } = req.body;
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: {
-        ...(name ? { name } : {}),
-        ...(role ? { role } : {})
+        ...(name ? { name } : {})
       },
       select: {
         id: true,
@@ -267,7 +264,7 @@ router.put('/me', authenticate, async (req, res) => {
 
     return res.json({ message: 'Profile updated successfully', user });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error updating profile' });
+    return res.status(500).json({ error: 'Error updating profile' });
   }
 });
 

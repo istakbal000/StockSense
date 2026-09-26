@@ -19,7 +19,6 @@ export const AuthView = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [devOtpNotification, setDevOtpNotification] = useState(null);
 
   // Status & feedback
   const [loading, setLoading] = useState(false);
@@ -72,7 +71,6 @@ export const AuthView = () => {
     setError(null);
     try {
       const res = await api.forgotPassword(resetEmail);
-      setDevOtpNotification(res.devOtp || null);
       setSuccessMessage(res.message || 'OTP code sent to your email.');
       setStep('verify-otp');
     } catch (err) {
@@ -143,7 +141,7 @@ export const AuthView = () => {
             </div>
           }
 
-          {devOtpNotification &&
+          {false &&
           <div className="mb-4 p-3 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-xs text-indigo-200">
               <span className="font-bold">🔑 OTP Development Preview:</span> Your verification code is{' '}
               <span className="font-mono font-extrabold text-white bg-indigo-600/40 px-2 py-0.5 rounded">

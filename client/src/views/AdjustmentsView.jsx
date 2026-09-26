@@ -51,7 +51,7 @@ export const AdjustmentsView = () => {
       setLocations(locRes.locations || []);
 
       if (prodRes.products?.length > 0 && !selectedProductId) {
-        setSelectedProductId(prodRes.products[0].id);
+        setSelectedProductId('');
       }
       if (locRes.locations?.length > 0 && !selectedLocationId) {
         setSelectedLocationId(locRes.locations[0].id);
@@ -242,6 +242,7 @@ export const AdjustmentsView = () => {
               onChange={(e) => setSelectedProductId(e.target.value)}
               className="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-xs text-white focus:ring-2 focus:ring-purple-500/50">
               
+              <option value="" disabled>Select Product</option>
               {products.map((p) =>
               <option key={p.id} value={p.id}>
                   {p.name} ({p.sku}) &middot; Total Company Stock: {p.totalStock} {p.unitOfMeasure?.symbol}

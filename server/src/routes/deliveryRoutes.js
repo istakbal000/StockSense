@@ -38,7 +38,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ deliveries });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching delivery orders' });
+    return res.status(500).json({ error: 'Error fetching delivery orders' });
   }
 });
 
@@ -68,7 +68,7 @@ router.get('/:id', authenticate, async (req, res) => {
     if (!delivery) return res.status(404).json({ error: 'Delivery order not found' });
     return res.json({ delivery });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching delivery order' });
+    return res.status(500).json({ error: 'Error fetching delivery order' });
   }
 });
 
@@ -115,7 +115,7 @@ router.post('/', authenticate, async (req, res) => {
 
     return res.status(201).json({ delivery });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating delivery order' });
+    return res.status(500).json({ error: 'Error creating delivery order' });
   }
 });
 
@@ -153,7 +153,7 @@ router.post('/:id/pick', authenticate, async (req, res) => {
 
     return res.json({ message: 'All items marked as Picked', delivery: updated });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error updating picking status' });
+    return res.status(500).json({ error: 'Error updating picking status' });
   }
 });
 
@@ -197,7 +197,7 @@ router.post('/:id/pack', authenticate, async (req, res) => {
 
     return res.json({ message: 'All items marked as Packed', delivery: updated });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error updating packing status' });
+    return res.status(500).json({ error: 'Error updating packing status' });
   }
 });
 
@@ -210,7 +210,7 @@ router.post('/:id/validate', authenticate, async (req, res) => {
       delivery: updated
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message || 'Error validating delivery order' });
+    return res.status(400).json({ error: 'Error validating delivery order' });
   }
 });
 
@@ -230,7 +230,7 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
 
     return res.json({ message: 'Delivery order canceled', delivery: updated });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error canceling delivery order' });
+    return res.status(500).json({ error: 'Error canceling delivery order' });
   }
 });
 

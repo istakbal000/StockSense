@@ -39,6 +39,17 @@ const MainApp = () => {
       loadAlertCounts();
       const interval = setInterval(loadAlertCounts, 15000); // 15s refresh
       return () => clearInterval(interval);
+    } else {
+      setActiveView('dashboard');
+    }
+  }, [user, activeView]);
+
+  useEffect(() => {
+    if (user?.role === 'Warehouse Staff') {
+      const restricted = ['dashboard', 'products', 'stock-availability', 'categories', 'reordering-rules', 'move-history', 'warehouse-settings'];
+      if (restricted.includes(activeView)) {
+        setActiveView('receipts');
+      }
     }
   }, [user, activeView]);
 

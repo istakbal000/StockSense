@@ -60,7 +60,7 @@ export const DeliveriesView = () => {
         setSourceLocationId(locRes.locations[0].id);
       }
       if (prodRes.products?.length > 0 && lineItems[0].productId === '') {
-        setLineItems([{ productId: prodRes.products[0].id, quantity: '5' }]);
+        setLineItems([{ productId: '', quantity: '5' }]);
       }
     } catch (err) {
       console.error(err);
@@ -75,7 +75,7 @@ export const DeliveriesView = () => {
   }, [filterStatus]);
 
   const handleAddLineItem = () => {
-    const defaultProd = products.length > 0 ? products[0].id : '';
+    const defaultProd = '';
     setLineItems([...lineItems, { productId: defaultProd, quantity: '1' }]);
   };
 
@@ -435,6 +435,7 @@ export const DeliveriesView = () => {
                     onChange={(e) => handleLineItemChange(idx, 'productId', e.target.value)}
                     className="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs text-white">
                     
+                      <option value="" disabled>Select Product</option>
                       {products.map((p) =>
                     <option key={p.id} value={p.id}>
                           {p.name} ({p.sku}) &middot; Total Stock: {p.totalStock} {p.unitOfMeasure?.symbol}

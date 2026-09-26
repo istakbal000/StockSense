@@ -87,6 +87,7 @@ export const AppShell = ({
   const renderNavLinks = () =>
   <div className="flex flex-col gap-1 px-3 py-4">
       {/* 1. Dashboard */}
+      {user?.role !== 'Warehouse Staff' && (
       <button
       onClick={() => {
         setActiveView('dashboard');
@@ -152,6 +153,7 @@ export const AppShell = ({
           </div>
       }
       </div>
+      )}
 
       {/* 3. Operations Section */}
       <div className="pt-2">
@@ -208,6 +210,7 @@ export const AppShell = ({
               <ClipboardCheck className="w-3 h-3 text-purple-400" />
               <span>Inventory Adjustments</span>
             </button>
+            {user?.role !== 'Warehouse Staff' && (
             <button
           onClick={() => {
             setActiveView('move-history');
@@ -218,11 +221,13 @@ export const AppShell = ({
               <History className="w-3 h-3 text-amber-400" />
               <span>Move History (Ledger)</span>
             </button>
+            )}
           </div>
       }
       </div>
 
       {/* 4. Settings Section */}
+      {user?.role !== 'Warehouse Staff' && (
       <div className="pt-3">
         <p className="px-3 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
           Settings
@@ -238,6 +243,7 @@ export const AppShell = ({
           <span>Warehouse</span>
         </button>
       </div>
+      )}
 
       {/* 5. Left Sidebar Profile Menu */}
       <div className="pt-3 mt-auto">

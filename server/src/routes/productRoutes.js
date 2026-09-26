@@ -14,7 +14,7 @@ router.get('/categories', authenticate, async (_req, res) => {
     });
     return res.json({ categories });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching categories' });
+    return res.status(500).json({ error: 'Error fetching categories' });
   }
 });
 
@@ -29,7 +29,7 @@ router.post('/categories', authenticate, async (req, res) => {
     });
     return res.status(201).json({ category });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating category' });
+    return res.status(500).json({ error: 'Error creating category' });
   }
 });
 
@@ -39,7 +39,7 @@ router.get('/units', authenticate, async (_req, res) => {
     const units = await prisma.unitOfMeasure.findMany({ orderBy: { name: 'asc' } });
     return res.json({ units });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching units' });
+    return res.status(500).json({ error: 'Error fetching units' });
   }
 });
 
@@ -54,7 +54,7 @@ router.post('/units', authenticate, async (req, res) => {
     });
     return res.status(201).json({ unit });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating unit' });
+    return res.status(500).json({ error: 'Error creating unit' });
   }
 });
 
@@ -118,7 +118,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ products: enrichedProducts });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching products' });
+    return res.status(500).json({ error: 'Error fetching products' });
   }
 });
 
@@ -164,7 +164,7 @@ router.get('/:id', authenticate, async (req, res) => {
 
     return res.json({ product: { ...product, totalStock } });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching product' });
+    return res.status(500).json({ error: 'Error fetching product' });
   }
 });
 
@@ -245,7 +245,7 @@ router.post('/', authenticate, async (req, res) => {
 
     return res.status(201).json({ product: result });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating product' });
+    return res.status(500).json({ error: 'Error creating product' });
   }
 });
 
@@ -278,7 +278,7 @@ router.put('/:id', authenticate, async (req, res) => {
 
     return res.json({ product });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error updating product' });
+    return res.status(500).json({ error: 'Error updating product' });
   }
 });
 
@@ -313,7 +313,7 @@ router.post('/:id/reordering-rules', authenticate, async (req, res) => {
 
     return res.json({ rule });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error updating reordering rule' });
+    return res.status(500).json({ error: 'Error updating reordering rule' });
   }
 });
 

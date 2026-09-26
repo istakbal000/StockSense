@@ -38,7 +38,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ transfers });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching transfers' });
+    return res.status(500).json({ error: 'Error fetching transfers' });
   }
 });
 
@@ -67,7 +67,7 @@ router.get('/:id', authenticate, async (req, res) => {
     if (!transfer) return res.status(404).json({ error: 'Internal transfer not found' });
     return res.json({ transfer });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching transfer' });
+    return res.status(500).json({ error: 'Error fetching transfer' });
   }
 });
 
@@ -115,7 +115,7 @@ router.post('/', authenticate, async (req, res) => {
 
     return res.status(201).json({ transfer });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating transfer' });
+    return res.status(500).json({ error: 'Error creating transfer' });
   }
 });
 
@@ -128,7 +128,7 @@ router.post('/:id/validate', authenticate, async (req, res) => {
       transfer: updated
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message || 'Error validating transfer' });
+    return res.status(400).json({ error: 'Error validating transfer' });
   }
 });
 
@@ -148,7 +148,7 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
 
     return res.json({ message: 'Internal transfer canceled', transfer: updated });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error canceling transfer' });
+    return res.status(500).json({ error: 'Error canceling transfer' });
   }
 });
 

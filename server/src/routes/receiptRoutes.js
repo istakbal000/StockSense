@@ -38,7 +38,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ receipts });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching receipts' });
+    return res.status(500).json({ error: 'Error fetching receipts' });
   }
 });
 
@@ -63,7 +63,7 @@ router.get('/:id', authenticate, async (req, res) => {
     if (!receipt) return res.status(404).json({ error: 'Receipt not found' });
     return res.json({ receipt });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching receipt' });
+    return res.status(500).json({ error: 'Error fetching receipt' });
   }
 });
 
@@ -108,7 +108,7 @@ router.post('/', authenticate, async (req, res) => {
 
     return res.status(201).json({ receipt });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating receipt' });
+    return res.status(500).json({ error: 'Error creating receipt' });
   }
 });
 
@@ -121,7 +121,7 @@ router.post('/:id/validate', authenticate, async (req, res) => {
       receipt: updated
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message || 'Error validating receipt' });
+    return res.status(400).json({ error: 'Error validating receipt' });
   }
 });
 
@@ -141,7 +141,7 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
 
     return res.json({ message: 'Receipt canceled', receipt: updated });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error canceling receipt' });
+    return res.status(500).json({ error: 'Error canceling receipt' });
   }
 });
 

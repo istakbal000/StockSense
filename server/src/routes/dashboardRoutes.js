@@ -102,7 +102,7 @@ router.get('/summary', authenticate, async (_req, res) => {
       }
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching dashboard KPIs' });
+    return res.status(500).json({ error: 'Error fetching dashboard KPIs' });
   }
 });
 
@@ -334,7 +334,7 @@ router.get('/operations', authenticate, async (req, res) => {
 
     return res.json({ operations: results });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching dashboard operations' });
+    return res.status(500).json({ error: 'Error fetching dashboard operations' });
   }
 });
 

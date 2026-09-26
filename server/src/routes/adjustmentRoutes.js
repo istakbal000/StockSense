@@ -30,7 +30,7 @@ router.get('/', authenticate, async (req, res) => {
 
     return res.json({ adjustments });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching adjustments' });
+    return res.status(500).json({ error: 'Error fetching adjustments' });
   }
 });
 
@@ -45,7 +45,7 @@ router.get('/preview', authenticate, async (req, res) => {
     const balance = await InventoryService.getBalance(String(productId), String(locationId));
     return res.json({ recordedQuantity: balance });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error previewing stock' });
+    return res.status(500).json({ error: 'Error previewing stock' });
   }
 });
 
@@ -76,7 +76,7 @@ router.post('/', authenticate, async (req, res) => {
       adjustment
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message || 'Error creating adjustment' });
+    return res.status(400).json({ error: 'Error creating adjustment' });
   }
 });
 

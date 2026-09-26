@@ -21,7 +21,7 @@ router.get('/', authenticate, async (_req, res) => {
     });
     return res.json({ warehouses });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching warehouses' });
+    return res.status(500).json({ error: 'Error fetching warehouses' });
   }
 });
 
@@ -42,7 +42,7 @@ router.post('/', authenticate, async (req, res) => {
     });
     return res.status(201).json({ warehouse });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating warehouse' });
+    return res.status(500).json({ error: 'Error creating warehouse' });
   }
 });
 
@@ -62,7 +62,7 @@ router.get('/locations', authenticate, async (req, res) => {
     });
     return res.json({ locations });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error fetching locations' });
+    return res.status(500).json({ error: 'Error fetching locations' });
   }
 });
 
@@ -85,7 +85,7 @@ router.post('/locations', authenticate, async (req, res) => {
     });
     return res.status(201).json({ location });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Error creating location' });
+    return res.status(500).json({ error: 'Error creating location' });
   }
 });
 
