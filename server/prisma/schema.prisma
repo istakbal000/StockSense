@@ -100,7 +100,7 @@ model Product {
   balances         InventoryBalance[]
   category         Category              @relation(fields: [categoryId], references: [id])
   unitOfMeasure    UnitOfMeasure         @relation(fields: [unitOfMeasureId], references: [id])
-  ProductBatch     ProductBatch[]
+  batches          ProductBatch[]
   receiptItems     ReceiptItem[]
   reorderingRules  ReorderingRule[]
   ledgerEntries    StockLedgerEntry[]
