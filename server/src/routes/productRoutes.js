@@ -89,9 +89,8 @@ router.get('/', authenticate, async (req, res) => {
             }
           }
         },
-        reorderingRules: {
-          include: { location: true }
-        }
+        reorderingRules: { include: { location: true } },
+        batches: { orderBy: { expiryDate: 'asc' } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -137,13 +136,8 @@ router.get('/:id', authenticate, async (req, res) => {
             }
           }
         },
-        reorderingRules: {
-          include: {
-            location: {
-              include: { warehouse: true }
-            }
-          }
-        },
+        reorderingRules: { include: { location: { include: { warehouse: true } } } },
+        batches: { orderBy: { expiryDate: 'asc' } },
         ledgerEntries: {
           take: 20,
           orderBy: { createdAt: 'desc' },
@@ -171,7 +165,7 @@ router.get('/:id', authenticate, async (req, res) => {
 // Create product (with optional initial stock and initial location)
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { name, sku, categoryId, unitOfMeasureId, initialStock, initialLocationId } = req.body;
+    const { name, sku, categoryId, unitOfMeasureId, initialStock, initialLocationId, isBatchTracked, isExpiryTracked } = req.body;
 
     if (!name || !sku || !categoryId || !unitOfMeasureId) {
       return res.status(400).json({
@@ -203,7 +197,9 @@ router.post('/', authenticate, async (req, res) => {
           sku: cleanSku,
           categoryId,
           unitOfMeasureId,
-          initialStock: parsedStock
+          initialStock: parsedStock,
+          isBatchTracked: !!isBatchTracked,
+          isExpiryTracked: !!isExpiryTracked
         },
         include: { category: true, unitOfMeasure: true }
       });
@@ -219,10 +215,22 @@ router.post('/', authenticate, async (req, res) => {
 
       // If initial stock provided, initialize balance & write INITIAL_STOCK ledger
       if (parsedStock > 0 && initialLocationId) {
+        let batchId = null;
+        if (!!isBatchTracked) {
+          const batch = await tx.productBatch.create({
+            data: {
+              productId: product.id,
+              batchNumber: `INIT-${cleanSku}`,
+              expiryDate: !!isExpiryTracked ? new Date(new Date().setFullYear(new Date().getFullYear() + 1)) : null
+            }
+          });
+          batchId = batch.id;
+        }
         await tx.inventoryBalance.create({
           data: {
             productId: product.id,
             locationId: initialLocationId,
+            batchId: batchId,
             quantity: parsedStock
           }
         });
@@ -232,6 +240,7 @@ router.post('/', authenticate, async (req, res) => {
             movementType: 'INITIAL_STOCK',
             referenceDocument: `INIT-${cleanSku}`,
             productId: product.id,
+            batchId: batchId,
             quantity: parsedStock,
             toLocationId: initialLocationId,
             notes: `Initial stock allocated on product creation`,
@@ -252,7 +261,7 @@ router.post('/', authenticate, async (req, res) => {
 // Update product
 router.put('/:id', authenticate, async (req, res) => {
   try {
-    const { name, sku, categoryId, unitOfMeasureId } = req.body;
+    const { name, sku, categoryId, unitOfMeasureId, isBatchTracked, isExpiryTracked } = req.body;
     const { id } = req.params;
 
     const cleanSku = sku ? sku.trim().toUpperCase() : undefined;
@@ -271,7 +280,9 @@ router.put('/:id', authenticate, async (req, res) => {
         ...(name ? { name: name.trim() } : {}),
         ...(cleanSku ? { sku: cleanSku } : {}),
         ...(categoryId ? { categoryId } : {}),
-        ...(unitOfMeasureId ? { unitOfMeasureId } : {})
+        ...(unitOfMeasureId ? { unitOfMeasureId } : {}),
+        ...(isBatchTracked !== undefined ? { isBatchTracked: !!isBatchTracked } : {}),
+        ...(isExpiryTracked !== undefined ? { isExpiryTracked: !!isExpiryTracked } : {})
       },
       include: { category: true, unitOfMeasure: true }
     });
@@ -314,6 +325,53 @@ router.post('/:id/reordering-rules', authenticate, async (req, res) => {
     return res.json({ rule });
   } catch (err) {
     return res.status(500).json({ error: 'Error updating reordering rule' });
+  }
+});
+
+
+// Create a batch
+router.post('/:id/batches', authenticate, async (req, res) => {
+  try {
+    const { batchNumber, expiryDate } = req.body;
+    const productId = req.params.id;
+    if (!batchNumber) return res.status(400).json({ error: 'Batch number is required' });
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product || !product.isBatchTracked) return res.status(400).json({ error: 'Product not found or not batch tracked' });
+    
+    const batch = await prisma.productBatch.create({
+      data: {
+        productId,
+        batchNumber,
+        expiryDate: expiryDate ? new Date(expiryDate) : null
+      }
+    });
+    return res.json({ batch });
+  } catch (err) {
+    if (err.code === 'P2002') return res.status(400).json({ error: 'Batch number already exists for this product' });
+    return res.status(500).json({ error: 'Error creating batch' });
+  }
+});
+
+// Get FEFO batches
+router.get('/:id/fefo-batches', authenticate, async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const batches = await prisma.productBatch.findMany({
+      where: {
+        productId,
+        balances: { some: { quantity: { gt: 0 } } }
+      },
+      orderBy: [
+        { expiryDate: 'asc' },
+        { createdAt: 'asc' }
+      ],
+      include: {
+        balances: { include: { location: { include: { warehouse: true } } } }
+      }
+    });
+    return res.json({ batches });
+  } catch (err) {
+    return res.status(500).json({ error: 'Error fetching FEFO batches' });
   }
 });
 

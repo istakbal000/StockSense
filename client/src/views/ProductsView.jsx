@@ -50,6 +50,11 @@ export const ProductsView = ({
   const [formUnitId, setFormUnitId] = useState('');
   const [formInitialStock, setFormInitialStock] = useState('0');
   const [formInitialLocationId, setFormInitialLocationId] = useState('');
+  const [formIsBatchTracked, setFormIsBatchTracked] = useState(false);
+  const [formIsExpiryTracked, setFormIsExpiryTracked] = useState(false);
+  const [batchesProduct, setBatchesProduct] = useState(null);
+  const [newBatchNo, setNewBatchNo] = useState('');
+  const [newBatchExpiry, setNewBatchExpiry] = useState('');
 
   // Reorder Form
   const [minQty, setMinQty] = useState('10');

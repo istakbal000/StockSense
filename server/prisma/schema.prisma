@@ -1,26 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         String   @default("Inventory Manager") // Inventory Manager, Warehouse Staff
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  receipts     Receipt[]
-  deliveries   DeliveryOrder[]
-  transfers    InternalTransfer[]
-  adjustments  InventoryAdjustment[]
-  ledgerEvents StockLedgerEntry[]
+  simulations      SimulationScenario[]
+  id               String                @id @default(uuid())
+  name             String
+  email            String                @unique
+  passwordHash     String
+  role             String                @default("Inventory Manager")
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  deliveries       DeliveryOrder[]
+  transfers        InternalTransfer[]
+  adjustments      InventoryAdjustment[]
+  InventoryAnomaly InventoryAnomaly[]
+  receipts         Receipt[]
+  ledgerEvents     StockLedgerEntry[]
 }
 
 model OtpCode {
@@ -58,73 +59,77 @@ model Warehouse {
 }
 
 model Location {
-  id          String   @id @default(uuid())
-  warehouseId String
-  name        String
-  code        String
-  type        String   @default("Rack") // Rack, Floor, Staging, Shelf, Production
-  createdAt   DateTime @default(now())
-
-  warehouse        Warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-  balances         InventoryBalance[]
-  reorderingRules  ReorderingRule[]
-  receipts         Receipt[]
+  simEventsFrom    SimulationEvent[]     @relation("SimSource")
+  simEventsTo      SimulationEvent[]     @relation("SimDest")
+  id               String                @id @default(uuid())
+  warehouseId      String
+  name             String
+  code             String
+  type             String                @default("Rack")
+  createdAt        DateTime              @default(now())
   deliveries       DeliveryOrder[]
-  transfersFrom    InternalTransfer[] @relation("TransferSource")
-  transfersTo      InternalTransfer[] @relation("TransferDestination")
+  transfersTo      InternalTransfer[]    @relation("TransferDestination")
+  transfersFrom    InternalTransfer[]    @relation("TransferSource")
   adjustments      InventoryAdjustment[]
-  ledgerEventsFrom StockLedgerEntry[] @relation("LedgerFrom")
-  ledgerEventsTo   StockLedgerEntry[] @relation("LedgerTo")
+  InventoryAnomaly InventoryAnomaly[]
+  balances         InventoryBalance[]
+  warehouse        Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  receipts         Receipt[]
+  reorderingRules  ReorderingRule[]
+  ledgerEventsFrom StockLedgerEntry[]    @relation("LedgerFrom")
+  ledgerEventsTo   StockLedgerEntry[]    @relation("LedgerTo")
 
   @@unique([warehouseId, code])
 }
 
 model Product {
-  id              String   @id @default(uuid())
-  name            String
-  sku             String   @unique
-  categoryId      String
-  unitOfMeasureId String
-  initialStock    Float?   @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  category        Category           @relation(fields: [categoryId], references: [id])
-  unitOfMeasure   UnitOfMeasure      @relation(fields: [unitOfMeasureId], references: [id])
-  balances        InventoryBalance[]
-  reorderingRules ReorderingRule[]
-  receiptItems    ReceiptItem[]
-  deliveryItems   DeliveryItem[]
-  transferItems   TransferItem[]
-  adjustments     InventoryAdjustment[]
-  ledgerEntries   StockLedgerEntry[]
+  simEvents        SimulationEvent[]
+  id               String                @id @default(uuid())
+  name             String
+  sku              String                @unique
+  categoryId       String
+  unitOfMeasureId  String
+  initialStock     Float?                @default(0)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  isBatchTracked   Boolean               @default(false)
+  isExpiryTracked  Boolean               @default(false)
+  deliveryItems    DeliveryItem[]
+  adjustments      InventoryAdjustment[]
+  InventoryAnomaly InventoryAnomaly[]
+  balances         InventoryBalance[]
+  category         Category              @relation(fields: [categoryId], references: [id])
+  unitOfMeasure    UnitOfMeasure         @relation(fields: [unitOfMeasureId], references: [id])
+  ProductBatch     ProductBatch[]
+  receiptItems     ReceiptItem[]
+  reorderingRules  ReorderingRule[]
+  ledgerEntries    StockLedgerEntry[]
+  transferItems    TransferItem[]
 }
 
 model InventoryBalance {
-  id         String   @id @default(uuid())
-  productId  String
-  locationId String
-  quantity   Float    @default(0)
-  updatedAt  DateTime @updatedAt
-
-  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, locationId])
+  id           String        @id @default(uuid())
+  productId    String
+  locationId   String
+  quantity     Float         @default(0)
+  updatedAt    DateTime      @updatedAt
+  batchId      String?
+  ProductBatch ProductBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  location     Location      @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ReorderingRule {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   productId      String
   locationId     String?
-  minQuantity    Float    @default(10) // Reorder level threshold
-  maxQuantity    Float?   // Optional target max
-  targetQuantity Float?   @default(50)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  product  Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  location Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  minQuantity    Float     @default(10)
+  maxQuantity    Float?
+  targetQuantity Float?    @default(50)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  location       Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, locationId])
 }
@@ -134,27 +139,27 @@ model Receipt {
   receiptNumber         String        @unique
   supplierName          String
   destinationLocationId String
-  status                String        @default("Draft") // Draft, Waiting, Ready, Done, Canceled
+  status                String        @default("Draft")
   notes                 String?
   validatedAt           DateTime?
   createdByUserId       String?
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
-
-  destinationLocation Location      @relation(fields: [destinationLocationId], references: [id])
-  createdByUser       User?         @relation(fields: [createdByUserId], references: [id])
-  items               ReceiptItem[]
+  createdByUser         User?         @relation(fields: [createdByUserId], references: [id])
+  destinationLocation   Location      @relation(fields: [destinationLocationId], references: [id])
+  items                 ReceiptItem[]
 }
 
 model ReceiptItem {
-  id        String  @id @default(uuid())
-  receiptId String
-  productId String
-  quantity  Float
-  notes     String?
-
-  receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  id           String        @id @default(uuid())
+  receiptId    String
+  productId    String
+  quantity     Float
+  notes        String?
+  batchId      String?
+  ProductBatch ProductBatch? @relation(fields: [batchId], references: [id])
+  product      Product       @relation(fields: [productId], references: [id])
+  receipt      Receipt       @relation(fields: [receiptId], references: [id], onDelete: Cascade)
 }
 
 model DeliveryOrder {
@@ -162,30 +167,30 @@ model DeliveryOrder {
   orderNumber      String         @unique
   customerName     String
   sourceLocationId String
-  status           String         @default("Draft") // Draft, Waiting, Ready, Done, Canceled
-  pickStatus       String         @default("Pending") // Pending, Picked
-  packStatus       String         @default("Pending") // Pending, Packed
+  status           String         @default("Draft")
+  pickStatus       String         @default("Pending")
+  packStatus       String         @default("Pending")
   notes            String?
   validatedAt      DateTime?
   createdByUserId  String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-
-  sourceLocation Location       @relation(fields: [sourceLocationId], references: [id])
-  createdByUser  User?          @relation(fields: [createdByUserId], references: [id])
-  items          DeliveryItem[]
+  items            DeliveryItem[]
+  createdByUser    User?          @relation(fields: [createdByUserId], references: [id])
+  sourceLocation   Location       @relation(fields: [sourceLocationId], references: [id])
 }
 
 model DeliveryItem {
-  id             String  @id @default(uuid())
+  id             String        @id @default(uuid())
   deliveryId     String
   productId      String
   quantity       Float
-  pickedQuantity Float   @default(0)
-  packedQuantity Float   @default(0)
-
-  delivery DeliveryOrder @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
-  product  Product       @relation(fields: [productId], references: [id])
+  pickedQuantity Float         @default(0)
+  packedQuantity Float         @default(0)
+  batchId        String?
+  ProductBatch   ProductBatch? @relation(fields: [batchId], references: [id])
+  delivery       DeliveryOrder @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  product        Product       @relation(fields: [productId], references: [id])
 }
 
 model InternalTransfer {
@@ -193,63 +198,127 @@ model InternalTransfer {
   transferNumber        String         @unique
   sourceLocationId      String
   destinationLocationId String
-  status                String         @default("Draft") // Draft, Waiting, Ready, Done, Canceled
+  status                String         @default("Draft")
   notes                 String?
   validatedAt           DateTime?
   createdByUserId       String?
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
-
-  sourceLocation      Location       @relation("TransferSource", fields: [sourceLocationId], references: [id])
-  destinationLocation Location       @relation("TransferDestination", fields: [destinationLocationId], references: [id])
-  createdByUser       User?          @relation(fields: [createdByUserId], references: [id])
-  items               TransferItem[]
+  createdByUser         User?          @relation(fields: [createdByUserId], references: [id])
+  destinationLocation   Location       @relation("TransferDestination", fields: [destinationLocationId], references: [id])
+  sourceLocation        Location       @relation("TransferSource", fields: [sourceLocationId], references: [id])
+  items                 TransferItem[]
 }
 
 model TransferItem {
-  id         String @id @default(uuid())
-  transferId String
-  productId  String
-  quantity   Float
-
-  transfer InternalTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
-  product  Product          @relation(fields: [productId], references: [id])
+  id           String           @id @default(uuid())
+  transferId   String
+  productId    String
+  quantity     Float
+  batchId      String?
+  ProductBatch ProductBatch?    @relation(fields: [batchId], references: [id])
+  product      Product          @relation(fields: [productId], references: [id])
+  transfer     InternalTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
 }
 
 model InventoryAdjustment {
-  id               String    @id @default(uuid())
-  adjustmentNumber String    @unique
+  id               String        @id @default(uuid())
+  adjustmentNumber String        @unique
   productId        String
   locationId       String
   recordedQuantity Float
   physicalCount    Float
   difference       Float
   reason           String?
-  status           String    @default("Done") // Draft, Waiting, Ready, Done, Canceled
-  validatedAt      DateTime? @default(now())
+  status           String        @default("Done")
+  validatedAt      DateTime?     @default(now())
   createdByUserId  String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  product       Product   @relation(fields: [productId], references: [id])
-  location      Location  @relation(fields: [locationId], references: [id])
-  createdByUser User?     @relation(fields: [createdByUserId], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  batchId          String?
+  ProductBatch     ProductBatch? @relation(fields: [batchId], references: [id])
+  createdByUser    User?         @relation(fields: [createdByUserId], references: [id])
+  location         Location      @relation(fields: [locationId], references: [id])
+  product          Product       @relation(fields: [productId], references: [id])
 }
 
 model StockLedgerEntry {
-  id                String   @id @default(uuid())
-  movementType      String   // RECEIPT, DELIVERY, INTERNAL_TRANSFER, ADJUSTMENT, INITIAL_STOCK
+  id                String        @id @default(uuid())
+  movementType      String
   referenceDocument String
   productId         String
-  quantity          Float    // Positive for additions, negative for reductions, or transfer amount
+  quantity          Float
   fromLocationId    String?
   toLocationId      String?
   notes             String?
   userId            String?
-  createdAt         DateTime @default(now())
+  createdAt         DateTime      @default(now())
+  batchId           String?
+  ProductBatch      ProductBatch? @relation(fields: [batchId], references: [id])
+  fromLocation      Location?     @relation("LedgerFrom", fields: [fromLocationId], references: [id])
+  product           Product       @relation(fields: [productId], references: [id])
+  toLocation        Location?     @relation("LedgerTo", fields: [toLocationId], references: [id])
+  user              User?         @relation(fields: [userId], references: [id])
+}
 
-  product      Product   @relation(fields: [productId], references: [id])
-  fromLocation Location? @relation("LedgerFrom", fields: [fromLocationId], references: [id])
-  toLocation   Location? @relation("LedgerTo", fields: [toLocationId], references: [id])
-  user         User?     @relation(fields: [userId], references: [id])
+model InventoryAnomaly {
+  id                String    @id
+  type              String
+  severity          String
+  description       String
+  productId         String?
+  locationId        String?
+  referenceDocument String?
+  status            String    @default("OPEN")
+  resolvedByUserId  String?
+  resolutionNotes   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  Location          Location? @relation(fields: [locationId], references: [id])
+  Product           Product?  @relation(fields: [productId], references: [id])
+  User              User?     @relation(fields: [resolvedByUserId], references: [id])
+}
+
+model ProductBatch {
+  id                  String                @id
+  productId           String
+  batchNumber         String
+  expiryDate          DateTime?
+  createdAt           DateTime              @default(now())
+  DeliveryItem        DeliveryItem[]
+  InventoryAdjustment InventoryAdjustment[]
+  InventoryBalance    InventoryBalance[]
+  Product             Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ReceiptItem         ReceiptItem[]
+  StockLedgerEntry    StockLedgerEntry[]
+  TransferItem        TransferItem[]
+
+  @@unique([productId, batchNumber])
+}
+
+model SimulationScenario {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+
+  createdByUser User?             @relation(fields: [createdByUserId], references: [id])
+  events        SimulationEvent[]
+}
+
+model SimulationEvent {
+  id                    String   @id @default(uuid())
+  scenarioId            String
+  eventType             String // RECEIPT, DELIVERY, TRANSFER
+  productId             String
+  expectedDate          DateTime
+  quantity              Float
+  sourceLocationId      String?
+  destinationLocationId String?
+
+  scenario            SimulationScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  product             Product            @relation(fields: [productId], references: [id])
+  sourceLocation      Location?          @relation("SimSource", fields: [sourceLocationId], references: [id])
+  destinationLocation Location?          @relation("SimDest", fields: [destinationLocationId], references: [id])
 }

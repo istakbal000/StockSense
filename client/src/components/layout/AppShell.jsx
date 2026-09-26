@@ -99,6 +99,7 @@ export const AppShell = ({
         <span>Dashboard</span>
       </button>
 
+      )}
       {/* 2. Products Section */}
       <div className="pt-2">
         <button
@@ -153,7 +154,6 @@ export const AppShell = ({
           </div>
       }
       </div>
-      )}
 
       {/* 3. Operations Section */}
       <div className="pt-2">

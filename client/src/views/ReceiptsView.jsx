@@ -34,7 +34,7 @@ export const ReceiptsView = () => {
   const [destinationLocationId, setDestinationLocationId] = useState('');
   const [notes, setNotes] = useState('');
   const [lineItems, setLineItems] = useState([
-  { productId: '', quantity: '10', notes: '' }]
+  { productId: '', quantity: '10', notes: '', batchId: '' }]
   );
 
   // Feedback
@@ -60,7 +60,7 @@ export const ReceiptsView = () => {
         setDestinationLocationId(locRes.locations[0].id);
       }
       if (prodRes.products?.length > 0 && lineItems[0].productId === '') {
-        setLineItems([{ productId: '', quantity: '10', notes: '' }]);
+        setLineItems([{ productId: '', quantity: '10', notes: '', batchId: '' }]);
       }
     } catch (err) {
       console.error(err);
@@ -398,6 +398,22 @@ export const ReceiptsView = () => {
                     </select>
                   </div>
 
+                  
+                  {products.find(p => p.id === item.productId)?.isBatchTracked && (
+                    <div className="w-32">
+                      <select
+                        required
+                        value={item.batchId || ''}
+                        onChange={(e) => handleLineItemChange(idx, 'batchId', e.target.value)}
+                        className="w-full rounded-lg bg-slate-900 border-rose-500 px-2 py-1.5 text-xs text-white"
+                      >
+                        <option value="" disabled>Batch *</option>
+                        {products.find(p => p.id === item.productId)?.batches?.map(b => (
+                          <option key={b.id} value={b.id}>{b.batchNumber}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="w-28">
                     <input
                     type="number"

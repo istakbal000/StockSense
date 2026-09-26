@@ -52,7 +52,7 @@ router.get('/preview', authenticate, async (req, res) => {
 // Create and apply Adjustment
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { productId, locationId, physicalCount, reason } = req.body;
+    const { productId, locationId, physicalCount, reason, batchId } = req.body;
 
     if (!productId || !locationId || physicalCount === undefined) {
       return res.status(400).json({ error: 'Product, Location, and Physical Count are required' });

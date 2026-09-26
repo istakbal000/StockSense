@@ -3,6 +3,7 @@ import { useAuth, AuthProvider } from './context/AuthContext';
 import { AppShell } from './components/layout/AppShell';
 import { AuthView } from './views/AuthView';
 import { DashboardView } from './views/DashboardView';
+import { FixItView } from './views/FixItView';
 import { ProductsView } from './views/ProductsView';
 import { ReceiptsView } from './views/ReceiptsView';
 import { DeliveriesView } from './views/DeliveriesView';
@@ -11,6 +12,8 @@ import { AdjustmentsView } from './views/AdjustmentsView';
 import { MoveHistoryView } from './views/MoveHistoryView';
 import { WarehouseSettingsView } from './views/WarehouseSettingsView';
 import { ProfileView } from './views/ProfileView';
+import { AnomaliesView } from './views/AnomaliesView';
+import { SimulationsView } from './views/SimulationsView';
 import { api } from './services/api';
 
 const MainApp = () => {
@@ -84,6 +87,7 @@ const MainApp = () => {
       outOfStockCount={alertCounts.outOfStock}>
       
       {activeView === 'dashboard' && <DashboardView onNavigate={setActiveView} />}
+      {activeView === 'fixit' && <FixItView />}
       {activeView === 'products' &&
       <ProductsView
         initialSearchSku={quickSearchSku}
@@ -114,6 +118,8 @@ const MainApp = () => {
       {activeView === 'adjustments' && <AdjustmentsView />}
       {activeView === 'move-history' && <MoveHistoryView />}
       {activeView === 'warehouse-settings' && <WarehouseSettingsView />}
+      {activeView === 'anomalies' && <AnomaliesView />}
+      {activeView === 'simulations' && <SimulationsView />}
       {activeView === 'profile' && <ProfileView />}
     </AppShell>);
 

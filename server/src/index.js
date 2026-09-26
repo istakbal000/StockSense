@@ -10,6 +10,9 @@ import deliveryRoutes from './routes/deliveryRoutes.js';
 import transferRoutes from './routes/transferRoutes.js';
 import adjustmentRoutes from './routes/adjustmentRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import anomalyRoutes from './routes/anomalyRoutes.js';
+import simulationRoutes from './routes/simulationRoutes.js';
+import fixItRoutes from './routes/fixItRoutes.js';
 import ledgerRoutes from './routes/ledgerRoutes.js';
 
 dotenv.config();
@@ -38,6 +41,9 @@ app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/transfers', transferRoutes);
 app.use('/api/adjustments', adjustmentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/anomalies', anomalyRoutes);
+app.use('/api/simulations', simulationRoutes);
+app.use('/api/fixit', fixItRoutes);
 app.use('/api/ledger', ledgerRoutes);
 
 // Global Error Handler
