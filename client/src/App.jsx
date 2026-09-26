@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import { AppShell } from './components/layout/AppShell';
 import { AuthView } from './views/AuthView';
+import { LandingView } from './views/LandingView';
 import { DashboardView } from './views/DashboardView';
 import { FixItView } from './views/FixItView';
 import { ProductsView } from './views/ProductsView';
@@ -21,6 +22,7 @@ const MainApp = () => {
   const [activeView, setActiveView] = useState('dashboard');
   const [quickSearchSku, setQuickSearchSku] = useState('');
   const [alertCounts, setAlertCounts] = useState({ lowStock: 0, outOfStock: 0 });
+  const [showAuth, setShowAuth] = useState(false);
 
   const loadAlertCounts = async () => {
     if (!user) return;
@@ -70,7 +72,22 @@ const MainApp = () => {
   }
 
   if (!user) {
-    return <AuthView />;
+    if (showAuth) {
+      return (
+        <div className="relative">
+          <div className="absolute top-4 left-4 z-50">
+            <button 
+              onClick={() => setShowAuth(false)} 
+              className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-lg text-sm font-medium transition-colors border border-slate-700 backdrop-blur-md shadow-lg flex items-center gap-2"
+            >
+              &larr; Back to site
+            </button>
+          </div>
+          <AuthView />
+        </div>
+      );
+    }
+    return <LandingView onLogin={() => setShowAuth(true)} />;
   }
 
   const handleQuickSearch = (sku) => {
